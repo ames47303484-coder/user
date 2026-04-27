@@ -38,37 +38,31 @@ window.onload = async () => {
 };
 
 // ====== منطق تثبيت التطبيق (PWA) للطالب ======
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!localStorage.getItem('pwa_prompt_dismissed_user')) {
-        showInstallPrompt();
-    }
-});
-
 window.showInstallPrompt = function() {
+    const isDismissed = localStorage.getItem('pwa_prompt_dismissed_user'); 
+    if (isDismissed === 'true') return;
     if (document.getElementById('installPwaModal')) return;
+
     const installModal = document.createElement('div');
     installModal.id = 'installPwaModal';
     installModal.innerHTML = `
-        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;">
             <div class="3d-card" style="background: white; width: 90%; max-width: 350px; border-radius: 20px; padding: 30px 20px; text-align: center;">
                 <div style="font-size: 50px; margin-bottom: 15px;">🚀</div>
                 <h3 style="font-size: 22px; color: #1e3c72; margin-bottom: 10px; font-weight: 900;">ثبت المنصة الآن!</h3>
                 <p style="color: #7f8c8d; font-size: 15px; margin-bottom: 25px;">ثبت التطبيق لتصل لدروسك بضغطة واحدة وبسرعة عالية.</p>
-                <button id="btnPwaInstall" style="width: 100%; padding: 14px; background: #2a5298; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 10px;">تثبيت التطبيق</button>
-                <button id="btnPwaClose" style="width: 100%; padding: 12px; background: transparent; color: #7f8c8d; border: none; cursor: pointer;">ليس الآن</button>
+                <button id="btnPwaInstall" style="width: 100%; padding: 14px; background: #2a5298; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);">تثبيت التطبيق</button>
+                <button id="btnPwaClose" style="width: 100%; padding: 12px; background: transparent; color: #7f8c8d; border: none; font-weight: 700; cursor: pointer;">ليس الآن</button>
             </div>
         </div>
     `;
     document.body.appendChild(installModal);
     
     document.getElementById('btnPwaInstall').onclick = async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') deferredPrompt = null;
+        if (window.deferredPrompt) {
+            window.deferredPrompt.prompt();
+            const { outcome } = await window.deferredPrompt.userChoice;
+            if (outcome === 'accepted') window.deferredPrompt = null;
         }
         document.body.removeChild(installModal);
     };
@@ -78,9 +72,9 @@ window.showInstallPrompt = function() {
         localStorage.setItem('pwa_prompt_dismissed_user', 'true');
     };
 }
+if (window.deferredPrompt) window.showInstallPrompt();
 // ===========================================
 
-// وظائف تسجيل الدخول وعرض المحتوى للطالب
 document.getElementById('loginUser').addEventListener('input', function() {
     const user = this.value.trim();
     const greetingDiv = document.getElementById('autoGreeting');
@@ -166,7 +160,7 @@ window.showLessonsForSection = function(sectionId, sectionName) {
     const container = document.getElementById('lessonsListContainer');
     container.innerHTML = '';
     const filtered = lessons.filter(l => l.sectionId == sectionId);
-    if (!filtered.length) { container.innerHTML = '<p>لا توجد دروس.</p>'; return; }
+    if (!filtered.length) { container.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:#1e3c72;"><div style="font-size:60px;">📭</div><p style="font-weight:900; margin-top:10px; font-size:20px;">لا توجد دروس في هذا القسم.</p></div>'; return; }
     filtered.forEach(l => {
         container.innerHTML += `<div class="video-lesson-card" onclick="openVideo('${l.title}', '${l.videoUrl}')">
             <div class="lesson-thumb" style="background-image: url('${getThumbnail(l.videoUrl)}');"><div class="play-overlay">▶</div></div>
@@ -179,18 +173,34 @@ function loadLessons(hasSubscription) {
     const sections = JSON.parse(localStorage.getItem(DB_SECTIONS)) || [];
     const lessons = JSON.parse(localStorage.getItem(DB_LESSONS)) || [];
     const container = document.getElementById('sectionsContainer');
-    if (!hasSubscription) { container.innerHTML = '🔒 اشتراك منتهي'; return; }
+    if (!hasSubscription) { container.innerHTML = '<div style="text-align:center; padding: 40px 20px; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); border-radius:24px; color:#c0392b; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border:1px solid rgba(255,255,255,0.8);"><div style="font-size:60px; margin-bottom:10px; filter:drop-shadow(0 5px 5px rgba(0,0,0,0.1));">🔒</div><p style="font-weight:900; font-size:20px;">عفواً، لقد انتهى اشتراكك!</p><p style="font-size:15px; margin-top:5px; color:#34495e; font-weight:700;">يرجى مراجعة المعلم لتجديد الاشتراك لتتمكن من مشاهدة الدروس.</p></div>'; return; }
+    if (!sections.length) { container.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:#1e3c72;"><div style="font-size:60px;">📭</div><p style="font-weight:900; margin-top:10px; font-size:20px;">لا توجد أقسام حالياً.</p></div>'; return; }
     container.innerHTML = sections.map(s => `
-        <div class="section-card" onclick="showLessonsForSection('${s.id}', '${s.name}')">
-            <div><h3 style="color:#1e3c72;">🗂️ ${s.name}</h3></div><div>⬅️</div>
+        <div class="section-card" style="cursor:pointer; display:flex; align-items:center; justify-content:space-between;" onclick="showLessonsForSection('${s.id}', '${s.name}')">
+            <div><h3 style="font-size: 20px; font-weight: 900; color: #1e3c72; margin-bottom: 5px;">🗂️ ${s.name}</h3></div><div style="font-size: 24px; color: #1e3c72; opacity: 0.6;">⬅️</div>
         </div>`).join('');
+}
+
+window.filterSections = function() {
+    const input = document.getElementById('sectionSearchInput');
+    if(!input) return;
+    const filter = input.value.toLowerCase();
+    const sectionCards = document.querySelectorAll('#sectionsContainer .section-card');
+    sectionCards.forEach(card => {
+        const h3 = card.querySelector('h3');
+        if (h3) {
+            const txtValue = h3.textContent || h3.innerText;
+            card.style.display = (txtValue.toLowerCase().indexOf(filter) > -1) ? "flex" : "none";
+        }
+    });
 }
 
 function loadAds() {
     const ads = JSON.parse(localStorage.getItem(DB_ADS)) || [];
     const container = document.getElementById('adsContainer');
+    if (!ads.length) { container.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:#1e3c72;"><div style="font-size:60px;">🔕</div><p style="font-weight:900; margin-top:10px; font-size:20px;">لا توجد إعلانات من الإدارة.</p></div>'; return; }
     container.innerHTML = ads.map(a => `
-        <div class="ad-item"><div class="ad-title">📢 ${a.title}</div><div class="ad-text">${a.text || a.content}</div></div>`).join('');
+        <div class="ad-item"><div class="ad-title">📢 ${a.title}</div><div class="ad-date">📅 ${a.date}</div><div class="ad-text">${a.text || a.content}</div></div>`).join('');
 }
 
 window.openVideo = function(title, url) {
