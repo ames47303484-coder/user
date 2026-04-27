@@ -1,4 +1,3 @@
-<!-- ملف index.html في مشروع الطالب (user) -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -96,7 +95,6 @@
         </nav>
     </div>
 
-    <!-- 3D Video Modal -->
     <div id="videoModal" class="modal">
         <div class="modal-content 3d-modal-content">
             <div class="modal-header">
@@ -111,9 +109,18 @@
 
     <link rel="manifest" href="manifest.json">
     <script>
+        // التقاط حدث التثبيت مبكراً للطالب
+        window.deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            if (window.showInstallPrompt) window.showInstallPrompt();
+        });
+
+        // تسجيل عامل الخدمة
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').then((registration) => {
-                console.log('SW Registration successful with scope: ', registration.scope);
+                console.log('SW Registration successful');
             }).catch((err) => {
                 console.log('SW Registration failed: ', err);
             });
