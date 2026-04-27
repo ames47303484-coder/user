@@ -1,7 +1,4 @@
-// اسم ذاكرة التخزين المؤقت
-const CACHE_NAME = 'edu-platform-v2';
-
-// الملفات التي يجب تحميلها وتخزينها ليعمل التطبيق
+const CACHE_NAME = 'edu-user-v4';
 const urlsToCache = [
     './',
     './index.html',
@@ -12,27 +9,23 @@ const urlsToCache = [
     './icon-512.png'
 ];
 
-// 1. حدث التثبيت (Install)
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
-    );
     self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return Promise.allSettled(
+                urlsToCache.map(url => cache.add(url).catch(err => console.log('Cache skip:', url)))
+            );
+        })
+    );
 });
 
-// 2. حدث التفعيل (Activate) - لمسح الكاش القديم إن وُجد
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
+                    if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
                 })
             );
         })
@@ -40,13 +33,10 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// 3. حدث جلب البيانات (Fetch) - جلب الملفات من الكاش إذا انقطع الإنترنت
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // إرجاع الملف من الكاش، أو طلبه من الإنترنت
-                return response || fetch(event.request);
-            })
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
     );
 });
