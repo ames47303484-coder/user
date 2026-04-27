@@ -238,6 +238,18 @@ body { padding-bottom: 60px; } /* reduce body padding to match new smaller nav *
 .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; }
 .video-wrapper iframe { width: 100%; height: 100%; border: none; }
 
+/* 3D Popups (اضافة تصميم نافذة التثبيت) */
+.popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);
+    display: none; justify-content: center; align-items: center; z-index: 1000;
+}
+.popup-overlay.active { display: flex; animation: fadeIn 0.3s; }
+.popup-box {
+    text-align: center; width: 90%; max-width: 350px;
+    background: rgba(255,255,255,0.9); padding: 30px 20px; border-radius: 20px;
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUpFade { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes floatAvatar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
