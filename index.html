@@ -6,6 +6,8 @@
     <title>منصة الطالب | 3D</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1e3c72">
 </head>
 <body>
     <div id="loginScreen" class="screen active">
@@ -107,22 +109,59 @@
         </div>
     </div>
 
-    <link rel="manifest" href="manifest.json">
+    <div id="installPwaModal" class="popup-overlay" style="z-index: 999999;">
+        <div class="popup-box 3d-card" style="width: 90%; max-width: 350px;">
+            <div style="font-size: 50px; margin-bottom: 15px;">🚀</div>
+            <h3 style="font-size: 22px; color: #1e3c72; margin-bottom: 10px; font-weight: 900;">ثبت المنصة الآن!</h3>
+            <p style="color: #7f8c8d; font-size: 15px; margin-bottom: 25px;">ثبت التطبيق لتصل لدروسك بضغطة واحدة وبسرعة عالية.</p>
+            <button id="btnPwaInstall" class="btn-3d" style="width: 100%; margin-bottom: 10px; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white;">تثبيت التطبيق</button>
+            <button id="btnPwaClose" class="btn-3d" style="width: 100%; background: #e0e0e0; color: #333; box-shadow: 0 6px 0 #bdc3c7; text-shadow: none;">ليس الآن</button>
+        </div>
+    </div>
+
     <script>
         // التقاط حدث التثبيت مبكراً للطالب
-        window.deferredPrompt = null;
+        let deferredPrompt = null;
+        const installModal = document.getElementById('installPwaModal');
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
-            window.deferredPrompt = e;
-            if (window.showInstallPrompt) window.showInstallPrompt();
+            deferredPrompt = e;
+            // إظهار النافذة إذا لم يقم الطالب بتخطيها مسبقاً
+            if (localStorage.getItem('pwa_prompt_dismissed_user') !== 'true') {
+                installModal.classList.add('active');
+            }
         });
 
-        // تسجيل عامل الخدمة
+        document.getElementById('btnPwaInstall').addEventListener('click', async () => {
+            installModal.classList.remove('active');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredPrompt = null;
+                }
+            }
+        });
+
+        document.getElementById('btnPwaClose').addEventListener('click', () => {
+            installModal.classList.remove('active');
+            localStorage.setItem('pwa_prompt_dismissed_user', 'true');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installModal.classList.remove('active');
+            deferredPrompt = null;
+        });
+
+        // تسجيل عامل الخدمة (Service Worker)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then((registration) => {
-                console.log('SW Registration successful');
-            }).catch((err) => {
-                console.log('SW Registration failed: ', err);
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then((registration) => {
+                    console.log('SW Registration successful');
+                }).catch((err) => {
+                    console.log('SW Registration failed: ', err);
+                });
             });
         }
     </script>
