@@ -37,44 +37,6 @@ window.onload = async () => {
     } catch(e) { console.error("Load Err", e); }
 };
 
-// ====== منطق تثبيت التطبيق (PWA) للطالب ======
-window.showInstallPrompt = function() {
-    const isDismissed = localStorage.getItem('pwa_prompt_dismissed_user'); 
-    if (isDismissed === 'true') return;
-    if (document.getElementById('installPwaModal')) return;
-
-    const installModal = document.createElement('div');
-    installModal.id = 'installPwaModal';
-    installModal.innerHTML = `
-        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;">
-            <div class="3d-card" style="background: white; width: 90%; max-width: 350px; border-radius: 20px; padding: 30px 20px; text-align: center;">
-                <div style="font-size: 50px; margin-bottom: 15px;">🚀</div>
-                <h3 style="font-size: 22px; color: #1e3c72; margin-bottom: 10px; font-weight: 900;">ثبت المنصة الآن!</h3>
-                <p style="color: #7f8c8d; font-size: 15px; margin-bottom: 25px;">ثبت التطبيق لتصل لدروسك بضغطة واحدة وبسرعة عالية.</p>
-                <button id="btnPwaInstall" style="width: 100%; padding: 14px; background: #2a5298; color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);">تثبيت التطبيق</button>
-                <button id="btnPwaClose" style="width: 100%; padding: 12px; background: transparent; color: #7f8c8d; border: none; font-weight: 700; cursor: pointer;">ليس الآن</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(installModal);
-    
-    document.getElementById('btnPwaInstall').onclick = async () => {
-        if (window.deferredPrompt) {
-            window.deferredPrompt.prompt();
-            const { outcome } = await window.deferredPrompt.userChoice;
-            if (outcome === 'accepted') window.deferredPrompt = null;
-        }
-        document.body.removeChild(installModal);
-    };
-    
-    document.getElementById('btnPwaClose').onclick = () => {
-        document.body.removeChild(installModal);
-        localStorage.setItem('pwa_prompt_dismissed_user', 'true');
-    };
-}
-if (window.deferredPrompt) window.showInstallPrompt();
-// ===========================================
-
 document.getElementById('loginUser').addEventListener('input', function() {
     const user = this.value.trim();
     const greetingDiv = document.getElementById('autoGreeting');
@@ -169,7 +131,7 @@ window.showLessonsForSection = function(sectionId, sectionName) {
     });
 }
 
-function loadLessons(hasSubscription) {
+window.loadLessons = function(hasSubscription) {
     const sections = JSON.parse(localStorage.getItem(DB_SECTIONS)) || [];
     const lessons = JSON.parse(localStorage.getItem(DB_LESSONS)) || [];
     const container = document.getElementById('sectionsContainer');
@@ -195,7 +157,7 @@ window.filterSections = function() {
     });
 }
 
-function loadAds() {
+window.loadAds = function() {
     const ads = JSON.parse(localStorage.getItem(DB_ADS)) || [];
     const container = document.getElementById('adsContainer');
     if (!ads.length) { container.innerHTML = '<div style="text-align:center; padding: 40px 20px; color:#1e3c72;"><div style="font-size:60px;">🔕</div><p style="font-weight:900; margin-top:10px; font-size:20px;">لا توجد إعلانات من الإدارة.</p></div>'; return; }
