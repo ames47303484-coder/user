@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة الطالب | 3D</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loginScreen" class="screen active">
+        <div class="login-card 3d-card">
+            <div class="avatar">👨‍🎓</div>
+            <h2>دخول المنصة</h2>
+            <div style="margin-bottom: 20px; color: #1e3c72; font-weight: 800; font-size: 16px; line-height: 1.5;">
+                حيدر كاظم عبد<br>
+                مدرس مادة الفيزياء<br>
+                منصة مركز الاوائل التعليمة
+            </div>
+            <form id="loginForm">
+                <div id="autoGreeting" class="auto-greeting"></div>
+                <div class="input-group">
+                    <input type="text" id="loginUser" required autocomplete="off">
+                    <label>اليوزر الخاص بك</label>
+                </div>
+                <button type="submit" class="btn-3d">دخول للمنصة</button>
+            </form>
+            <div id="loginError" class="error-msg"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <p style="font-size: 14px; margin-bottom: 10px; color: #34495e; font-weight: 700;">ليس لديك يوزر خاص؟</p>
+                <a href="https://wa.me/9647821851420" target="_blank" style="display: block; background: #25D366; color: white; padding: 12px 15px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 15px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); transition: transform 0.2s;">
+                    اطلب يوزر من الادارة 💬
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="appScreen" class="screen">
+        <header class="app-header">
+            <div style="text-align: center; font-size: 18px; font-weight: 900; color: #1e3c72; background: rgba(255,255,255,0.7); padding: 5px; border-radius: 10px;">
+                منصة مركز الاوائل التعليمة
+            </div>
+        </header>
+
+        <div class="content">
+            <div id="lessonsTab" class="app-tab active">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 class="page-title" id="lessonsPageTitle" style="margin-bottom: 0;">الاقسام 🗂️</h2>
+                    <button id="backToSectionsBtn" onclick="showSections()" style="display:none; padding: 8px 15px; font-size: 14px; width: auto;" class="btn-3d">رجوع 🔙</button>
+                </div>
+                <div id="sectionSearchContainer" style="margin-bottom: 20px;">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <input type="text" id="sectionSearchInput" placeholder="بحث باسم القسم..." oninput="filterSections()" style="padding: 12px; font-size: 14px;">
+                    </div>
+                </div>
+                <div id="sectionsContainer"></div>
+                <div id="lessonsListContainer" style="display:none;"></div>
+            </div>
+
+            <div id="adsTab" class="app-tab">
+                <h2 class="page-title">لوحة الإعلانات 📢</h2>
+                <div id="adsContainer"></div>
+            </div>
+
+            <div id="profileTab" class="app-tab">
+                <h2 class="page-title">البروفايل 👤</h2>
+                <div class="3d-card" style="text-align: center; padding: 30px 20px; border-radius: 20px; background: rgba(255,255,255,0.7);">
+                    <div style="font-size: 50px; margin-bottom: 15px;">👨‍🎓</div>
+                    <p style="font-size:16px; font-weight: 600; opacity:0.9; color: #1e3c72;">مرحباً بك يا بطل،</p>
+                    <h3 id="welcomeMsg" style="font-weight: 900; font-size: 26px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); color: #1e3c72; margin-bottom: 15px;">اسم الطالب</h3>
+                    <div id="daysBadge" class="days-badge" style="font-size: 16px; padding: 10px 20px; margin-bottom: 30px; display: inline-block;"></div>
+                    <br>
+                    <button onclick="logout()" class="logout-btn" style="width: 100%; max-width: 200px; padding: 15px; border-radius: 15px; font-size: 18px; background: #ff7675; color: white; border: none; box-shadow: 0 5px 15px rgba(255, 118, 117, 0.4);">تسجيل الخروج</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; padding: 20px 10px; color: #7f8c8d; font-size: 13px; font-weight: 800; margin-bottom: 20px;">
+                جميع الحقوق محفوضة لدى مدرس مادة الفيزياء حيدر كاظم عبد
+            </div>
+        </div>
+
+        <nav class="bottom-nav 3d-nav">
+            <div class="nav-item active" onclick="switchAppTab('lessonsTab', this)">
+                <span class="nav-icon">📚</span>
+                <span class="nav-text">الدروس</span>
+            </div>
+            <div class="nav-item" onclick="switchAppTab('adsTab', this)">
+                <span class="nav-icon">📢</span>
+                <span class="nav-text">الإعلانات</span>
+            </div>
+            <div class="nav-item" onclick="switchAppTab('profileTab', this)">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">البروفايل</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- 3D Video Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content 3d-modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">عنوان الدرس</h3>
+                <button class="close-btn" onclick="closeVideo()">✖</button>
+            </div>
+            <div class="video-wrapper">
+                <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <link rel="manifest" href="manifest.json">
+    <script src="script.js" type="module"></script>
+</body>
+</html>
